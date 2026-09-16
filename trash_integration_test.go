@@ -29,6 +29,15 @@ func TestMoveNative(t *testing.T) {
 	for _, kind := range []string{"file", "relative file", "directory", "symlink", "broken symlink"} {
 		t.Run(kind, func(t *testing.T) {
 			root := t.TempDir()
+			if runtime.GOOS == "windows" {
+				// Expand short names such as RUNNER~1 before comparing the path
+				// with the Shell's Recycle Bin metadata.
+				var err error
+				root, err = filepath.EvalSymlinks(root)
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
 			path := filepath.Join(root, "trash-test-"+filepath.Base(filepath.Dir(root))+"-日本語 😀-"+kind)
 			target := filepath.Join(root, "target")
 			const content = "recoverable contents"
@@ -135,10 +144,16 @@ func restoreTestItem(t *testing.T, path string) {
 		command := exec.Command("powershell.exe", "-NoProfile", "-NonInteractive", "-Command", `
 $ErrorActionPreference = 'Stop'
 $shell = New-Object -ComObject Shell.Application
-$items = @($shell.Namespace(10).Items() | Where-Object {
-    $_.Name -eq $env:TRASH_TEST_NAME -and $_.ExtendedProperty('System.Recycle.DeletedFrom') -eq $env:TRASH_TEST_PARENT
+$candidates = @($shell.Namespace(10).Items() | Where-Object {
+    $_.Name -eq $env:TRASH_TEST_NAME
 })
-if ($items.Count -ne 1) { throw 'Expected exactly one recycled test item' }
+$items = @($candidates | Where-Object {
+    $_.ExtendedProperty('System.Recycle.DeletedFrom') -eq $env:TRASH_TEST_PARENT
+})
+if ($items.Count -ne 1) {
+    $locations = @($candidates | ForEach-Object { $_.ExtendedProperty('System.Recycle.DeletedFrom') })
+    throw "Expected exactly one recycled test item; found $($items.Count); name: $env:TRASH_TEST_NAME; parent: $env:TRASH_TEST_PARENT; candidate locations: $($locations -join '; ')"
+}
 $shell.Namespace($env:TRASH_TEST_PARENT).MoveHere($items[0], 0x14)
 `)
 		command.Env = append(os.Environ(), "TRASH_TEST_NAME="+name, "TRASH_TEST_PARENT="+filepath.Dir(path))
