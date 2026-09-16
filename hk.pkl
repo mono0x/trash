@@ -1,0 +1,24 @@
+amends "package://github.com/jdx/hk/releases/download/v2.0.1/hk@2.0.1#/Config.pkl"
+
+import "package://github.com/jdx/hk/releases/download/v2.0.1/hk@2.0.1#/Builtins.pkl"
+
+local linters = new Mapping<String, Step> {
+  ["dprint"] = (Builtins.dprint) {
+    glob = "**/*.{json,jsonc,md,yaml,yml,toml}"
+  }
+  ["go-fmt"] = Builtins.go_fmt
+  ["pkl"] = Builtins.pkl
+  ["pkl-format"] = Builtins.pkl_format
+  ["zizmor"] = (Builtins.zizmor) {
+    glob = ".github/{actions,workflows}/**/*.{yaml,yml}"
+  }
+}
+
+steps = linters
+
+hooks {
+  ["post-tool-use"] {
+    fix = true
+    steps = linters
+  }
+}

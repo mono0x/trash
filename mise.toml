@@ -1,0 +1,54 @@
+[tools]
+dprint = "0.56.1"
+go = "1.27.1"
+hk = "2.0.1"
+pkl = "0.32.1"
+zizmor = "1.30.0"
+
+[env]
+CGO_ENABLED = "0"
+
+[tasks.build]
+description = "Compile tests for GOOS and GOARCH without running them"
+run = "go test -c -o build/trash.test ."
+
+[tasks.test]
+description = "Run unit tests"
+run = "go test ./..."
+
+[tasks."test:integration"]
+description = "Test native trash operations and recovery"
+env.TRASH_INTEGRATION = "1"
+run = "go test -v ./..."
+
+[tasks."check:mod"]
+description = "Verify Go dependency modules"
+run = "go mod verify"
+
+[tasks."check:vet"]
+description = "Run go vet for all supported targets"
+run = "sh scripts/check-go.sh vet ./..."
+
+[tasks."check:staticcheck"]
+description = "Run Staticcheck for all supported targets"
+run = "sh scripts/check-go.sh staticcheck ./..."
+
+[tasks."check:errcheck"]
+description = "Check for unhandled errors on all supported targets"
+run = "sh scripts/check-go.sh errcheck ./..."
+
+[tasks."check:govulncheck"]
+description = "Check for known Go vulnerabilities on all supported targets"
+run = "sh scripts/check-go.sh govulncheck ./..."
+
+[tasks."check:hk"]
+description = "Check formatting, Pkl configuration, and GitHub Actions security"
+run = "hk check --all"
+
+[tasks.check]
+description = "Run all checks"
+depends = ["check:*"]
+
+[tasks.fix]
+description = "Fix formatting and supported GitHub Actions issues"
+run = "hk fix --all"
