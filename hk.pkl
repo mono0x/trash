@@ -2,7 +2,7 @@ amends "package://github.com/jdx/hk/releases/download/v2.6.0/hk@2.6.0#/Config.pk
 
 import "package://github.com/jdx/hk/releases/download/v2.6.0/hk@2.6.0#/Builtins.pkl"
 
-local linters = new Mapping<String, Step> {
+steps {
   ["dprint"] = (Builtins.dprint) {
     glob = "**/*.{json,jsonc,md,yaml,yml,toml}"
   }
@@ -16,14 +16,5 @@ local linters = new Mapping<String, Step> {
     check = "jactionlint --format sarif {{files}}"
     check_diff = "hk util sarif-diff -- jactionlint --format sarif {{files}}"
     fix = "jactionlint --fix {{files}}"
-  }
-}
-
-steps = linters
-
-hooks {
-  ["post-tool-use"] {
-    fix = true
-    steps = linters
   }
 }
