@@ -1,6 +1,6 @@
 module github.com/mono0x/trash
 
-go 1.26.0
+go 1.26.10
 
 require github.com/ebitengine/purego v0.10.2
 

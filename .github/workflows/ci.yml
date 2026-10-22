@@ -26,7 +26,7 @@ jobs:
           persist-credentials: false
       - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
         with:
-          version: 2026.8.14
+          version: 2026.10.17
       - run: mise run check
 
   test:
@@ -34,7 +34,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        go: ["1.26", "1.27"]
+        go: ["1.26.10", "1.27.3"]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     steps:
@@ -43,7 +43,7 @@ jobs:
           persist-credentials: false
       - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
         with:
-          version: 2026.8.14
+          version: 2026.10.17
           install_args: go@${{ matrix.go }}
       - if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libglib2.0-0t64
@@ -58,7 +58,7 @@ jobs:
       matrix:
         goos: [windows, darwin, linux]
         goarch: [amd64, arm64]
-        go: ["1.26", "1.27"]
+        go: ["1.26.10", "1.27.3"]
     env:
       GOOS: ${{ matrix.goos }}
       GOARCH: ${{ matrix.goarch }}
@@ -68,7 +68,7 @@ jobs:
           persist-credentials: false
       - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
         with:
-          version: 2026.8.14
+          version: 2026.10.17
           install_args: go@${{ matrix.go }}
       - run: mise exec go@${{ matrix.go }} -- go version
       - run: mise run --tool go@${{ matrix.go }} build
