@@ -1,6 +1,6 @@
 [tools]
 "github:jdx/jactionlint" = "2.2.0"
-dprint = "0.56.1"
+dprint = "0.63.0"
 go = "1.27.3"
 hk = "2.6.0"
 pkl = "0.32.1"
