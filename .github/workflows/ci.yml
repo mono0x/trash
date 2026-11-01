@@ -72,3 +72,12 @@ jobs:
           install_args: go@${{ matrix.go }}
       - run: mise exec go@${{ matrix.go }} -- go version
       - run: mise run --tool go@${{ matrix.go }} build
+
+  ci-ok:
+    if: always()
+    needs: [check, test, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
